@@ -1,10 +1,13 @@
 ## https://www.tutorialspoint.com/flask/flask_sqlite.htm
 
 from flask import Flask, request
+from flask_cors import CORS
 import sqlite3 as sql
-from .CreateTable import Table
+# from .CreateTable import Table
 
 app = Flask(__name__)
+CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 @app.route("/")
 def hello_world():
@@ -12,7 +15,13 @@ def hello_world():
 
 @app.route("/create_table", methods=['POST', 'GET'])
 def create_new_table():
-    Table.create_table()
+    conn = sql.connect("database.db")
+    print("Opened database successfully")
+
+    conn.execute('CREATE TABLE students (name TEXT, addr TEXT, city TEXT, pin TEXT)')
+    print("Table created successfully")
+
+    conn.close()
     return "Created table"
 
 @app.route("/add_student", methods=['POST','GET'])
@@ -43,3 +52,6 @@ def view_students():
 
     rows = cur.fetchall()
     return rows
+
+if __name__ == '__main__':
+    app.run(host="localhost", port=8080, debug=True)
